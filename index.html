@@ -49,23 +49,28 @@
 </audio>
 <div id="container">
 	<div id="names" contenteditable="true">
-<div> 1.    Jules</div>
-<div> 2.    Harry</div>
-<div> 3.  Chris D</div>
-<div> 4.  Chris T</div>
-<div> 5.  James W</div>
-<div> 6.      Ben</div>
-<div> 7.    Jules</div>
-<div> 8.   Sparky</div>
-<div> 9.  Chris D</div>
+     <div> 1.      Ana</div>
+<div> 2.  James C</div>
+<div> 3.     Ally</div>
+<div> 4.      Tom</div>
+<div> 5.      Max</div>
+<div> 6.   Pete K</div>
+<div> 7.     Matt</div>
+<div> 8.    Harry</div>
+<div> 9.    Nick </div>
 <div>10.      Val</div>
-<div>11.  Peter W</div>
-<div>12.  Peter W</div>
+<div>11.    Jules</div>
+<div>12.      Max</div>
+<div>13.      Val</div>
+<div>14.    Harry</div>
+<div>15.     Matt</div>
+<div>16.     Adam</div>
+<div>17.     Eddy</div>
 
 	</div>
 		
 	<button class="uk-button uk-button-default uk-light" id='resetNames'>Reset</button>
-	<span id="namecountstring" class="uk-text-center"><span id="namecount">12</span> entries</span>
+	<span id="namecountstring" class="uk-text-center"><span id="namecount">17</span> entries</span>
 	<button class="uk-button uk-button-default uk-light uk-align-right" id='goNames'>Go</button>
 </div>
 <div id="mymodal" uk-modal>
@@ -114,7 +119,7 @@
 		    		winnerAnim(winner);
 		    	} else {
                     $('#winner').text(n.random());
-                    new Audio("tick.mp3").play();
+                  //  new Audio("tick.mp3").play();
                 }
 		    }, scale(i, 0, r, 300, 6000) );
 		    
