@@ -35,8 +35,13 @@ done
 echo "Most recent file: $LARGEST_FILE"
 
 # Convert the most recent Excel file to CSV format using unoconv
-CSV_FILE="${LARGEST_FILE%.xlsx}.csv"
-unoconv -f csv "$LARGEST_FILE" > /dev/null 2>&1
+#CSV_FILE="${LARGEST_FILE%.xlsx}.csv"
+BASENAME=$(basename "$LARGEST_FILE")
+CSV_FILE="/home/carey/Downloads/${BASENAME/! /!}"
+CSV_FILE="${CSV_FILE/.xlsx/.csv}"
+#unoconv -f csv "$LARGEST_FILE" > /dev/null 2>&1
+unoconv -f csv "$LARGEST_FILE" && echo "Conversion successful" || echo "Conversion failed"
+
 # Get the current date
 CURRENT_DATE=$(date +"%Y-%m-%d")
 # Define the output file name
@@ -44,10 +49,24 @@ OUTPUT_FILE="LightningStrikes-$CURRENT_DATE.csv"
 
 
 # Extract specific columns from the CSV file (A, F, G, H, I) only if column A is greater than $HIGHEST_ID
-awk -v highest_id="$HIGHEST_ID" -F ',' '$1 > highest_id {print $1 "," $6 "," $7 "," $8 "," $9}' "$CSV_FILE" > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" -F ',' '$1 > highest_id {print $1 "," $6 "," $7 "," $8 "," $9}' "$CSV_FILE" > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" -F ',' '$1 > highest_id {print "\"" $1 "\",\"" $6 "\",\"" $7 "\",\"" $8 "\",\"" $9 "\""}' "$CSV_FILE" > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" -F ',' 'BEGIN {OFS = ","} $1 > highest_id {print "\"" $1 "\",\"" $6 "\",\"" $7 "\",\"" $8 "\",\"" $9 "\""}' "$CSV_FILE" > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" 'BEGIN {OFS = ","} $1 > highest_id {gsub(/"/, "\"\"",$2); gsub(/"/, "\"\"",$3); gsub(/"/, "\"\"",$4); gsub(/"/, "\"\"",$5); print "\"" $1 "\",\"" $2 "\",\"" $3 "\",\"" $4 "\",\"" $5 "\""}' "$CSV_FILE" | tail -n +2 > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" -F '","' 'BEGIN {OFS = ","} $1 > highest_id {gsub(/^"|"$/,"",$1); gsub(/^"|"$/,"",$2); gsub(/^"|"$/,"",$3); gsub(/^"|"$/,"",$4); gsub(/^"|"$/,"",$5); print "\"" $1 "\",\"" $2 "\",\"" $3 "\",\"" $4 "\",\"" $5 "\""}' "$CSV_FILE" > "$OUTPUT_FILE"
+#svcut -d ',' -c 1,6-9 "$CSV_FILE" | awk -v highest_id="$HIGHEST_ID" -F ',' 'NR > 1 && $1 > highest_id {print "\"" $1 "\",\"" $6 "\",\"" $7 "\",\"" $8 "\",\"" $9 "\""}' > "$OUTPUT_FILE"
+#csvcut -d ',' -c 1,6-9 "$CSV_FILE" | awk -v highest_id="$HIGHEST_ID" -F ',' 'NR > 1 && $1 > highest_id {print "\"" $1 "\",\"" $2 "\",\"" $3 "\",\"" $4 "\",\"" $5 "\""}' > "$OUTPUT_FILE"
+#csvcut -d ',' -c 1,6-9 "$CSV_FILE" | awk -v highest_id="$HIGHEST_ID" -F ',' 'NR > 1 && $1 > highest_id {print $1 "," "\"" $2 "\"" "," "\"" $3 "\"" "," "\"" $4 "\"" "," "\"" $5 "\""}' | csvformat - > "$OUTPUT_FILE"
+#csvcut -d ',' -c 1,6-9 "$CSV_FILE" | sed 's/\"\"/\"/g' | awk -v highest_id="$HIGHEST_ID" -F ',' 'NR > 1 && $1 > highest_id {print $1 "," "\"" $2 "\"" "," "\"" $3 "\"" "," "\"" $4 "\"" "," "\"" $5 "\""}' | csvformat - > "$OUTPUT_FILE"
+awk -v highest_id="$HIGHEST_ID" -F ',' 'BEGIN {OFS=","} NR==1 {print; next} {gsub(/""/, "\"", $0)} $1 > highest_id {gsub(/^"|"$/, "\"", $2); gsub(/^"|"$/, "\"", $3); gsub(/^"|"$/, "\"", $4); gsub(/^"|"$/, "\"", $5); print}' "$CSV_FILE" > "$OUTPUT_FILE"
+#awk -v highest_id="$HIGHEST_ID" -F ',' 'BEGIN {OFS=","} NR==1 {print "ID,What is your name?,Name of person you would like to nominate:,Value or Behaviour demonstrated:,Why would you like to give them a lightning strike?"; next} $1 > highest_id {gsub(/""/, "\"", $0); gsub(/^"|"$/, "\"", $2); gsub(/^"|"$/, "\"", $3); gsub(/^"|"$/, "\"", $4); gsub(/^"|"$/, "\"", $5); print $1 "," $6 "," $7 "," $8 "," $9}' "$CSV_FILE" > "$OUTPUT_FILE"
 
 # Print the name of the extracted CSV file
 echo "Extracted columns saved to: $OUTPUT_FILE"
+
+# Use csvcut to remove columns B, C, D, and E from the extracted CSV file
+csvcut -c 1,6-9 "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
+
 
 
 awk -v highest_id="$HIGHEST_ID" -F ',' '$1 > highest_id {print "<div>" $1 ": " $7 "</div>"}' "$CSV_FILE" | tail -n +2
